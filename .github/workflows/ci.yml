@@ -22,6 +22,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Rodar lint
+        run: |
+          ruff check .
+
       - name: Rodar testes
         run: |
           export PYTHONPATH=.
