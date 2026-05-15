@@ -23,3 +23,11 @@ def marcar_como_tomado(lista, nome):
             return True
 
     return False
+
+def remover_medicamento(lista, nome):
+    for medicamento in lista:
+        if medicamento["nome"].lower() == nome.lower():
+            lista.remove(medicamento)
+            return True
+
+    return False

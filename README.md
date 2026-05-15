@@ -1,3 +1,5 @@
+Aplicação publicada: https://checkorkaput-fw7oxgsm84l32czslsqjtk.streamlit.app/
+
 CheckorKaput
 
 Uma aplicação CLI desenvolvida para auxiliar usuários no controle de medicamentos, horários e registros de uso, reduzindo esquecimentos e promovendo maior segurança no tratamento.

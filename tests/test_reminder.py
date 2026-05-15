@@ -1,5 +1,11 @@
 import pytest
-from src.reminder import adicionar_medicamento, marcar_como_tomado
+
+from src.reminder import (
+    adicionar_medicamento,
+    marcar_como_tomado,
+    remover_medicamento,
+)
+
 
 def test_adicionar_medicamento():
     lista = []
@@ -25,3 +31,18 @@ def test_marcar_como_tomado():
 
     assert resultado is True
     assert len(lista[0]["tomados"]) == 1
+
+
+def test_remover_medicamento():
+    lista = [
+        {
+            "nome": "Dipirona",
+            "horarios": ["08:00"],
+            "tomados": [],
+        }
+    ]
+
+    resultado = remover_medicamento(lista, "Dipirona")
+
+    assert resultado is True
+    assert lista == []
