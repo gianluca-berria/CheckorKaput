@@ -1,111 +1,122 @@
-from drug_api import consultar_medicamento
-from reminder import (
-    adicionar_medicamento,
-    listar,
-    marcar_como_tomado,
+
+from database import (
+    cadastrar_medicamento,
+    listar_medicamentos,
     remover_medicamento,
+    registrar_tomada,
+    listar_historico,
 )
-from storage import carregar, salvar
 
 
 def menu():
-    print("\n=== CheckorKaput ===")
-    print("1. Adicionar medicamento")
-    print("2. Listar medicamentos")
-    print("3. Marcar como tomado")
-    print("4. Remover medicamento")
-    print("5. Consultar informações do medicamento")
-    print("6. Sair")
-
-
-def mostrar_medicamentos(dados):
-    medicamentos = listar(dados)
-
-    if not medicamentos:
-        print("Nenhum medicamento cadastrado.")
-        return
-
-    for medicamento in medicamentos:
-        print(f"\nNome: {medicamento['nome']}")
-        print(f"Horários: {', '.join(medicamento['horarios'])}")
-        print(f"Tomados: {', '.join(medicamento['tomados'])}")
-
-
-def consultar_info_medicamento():
-    nome = input("Nome do medicamento para consulta: ")
-
-    try:
-        info = consultar_medicamento(nome)
-
-        if info is None:
-            print("Medicamento não encontrado na API.")
-            return
-
-        print("\nInformações encontradas:")
-        print(f"Nome genérico: {info['nome_generico']}")
-        print(f"Nome comercial: {info['nome_marca']}")
-        print(f"Fabricante: {info['fabricante']}")
-        print(f"Tipo de produto: {info['tipo_produto']}")
-        print(f"Aviso: {info['aviso']}")
-
-    except ValueError as erro:
-        print(f"Erro: {erro}")
-    except Exception:
-        print("Erro ao consultar a API pública.")
-
-
-def remover_info_medicamento(dados):
-    nome = input("Nome do medicamento para remover: ")
-
-    if remover_medicamento(dados, nome):
-        salvar(dados)
-        print("Medicamento removido!")
-    else:
-        print("Medicamento não encontrado.")
+    print("\n===== CheckorKaput CLI =====")
+    print("1 - Adicionar medicamento")
+    print("2 - Listar medicamentos")
+    print("3 - Marcar como tomado")
+    print("4 - Remover medicamento")
+    print("5 - Ver histórico de tomadas")
+    print("6 - Sair")
 
 
 def main():
-    dados = carregar()
-
     while True:
         menu()
         opcao = input("Escolha: ")
 
+        # 1 - CADASTRAR
+        # -------------------------
         if opcao == "1":
             nome = input("Nome do medicamento: ")
             horarios = input("Horários (ex: 08:00,20:00): ").split(",")
 
             try:
-                dados = adicionar_medicamento(dados, nome, horarios)
-                salvar(dados)
-                print("Medicamento adicionado!")
-            except ValueError as erro:
-                print(f"Erro: {erro}")
+                cadastrar_medicamento(nome, horarios)
+                print("✔ Medicamento adicionado com sucesso!")
+            except Exception as erro:
+                print(f"Erro ao cadastrar: {erro}")
 
+            
+        # 2 - LISTAR
+        # -------------------------
         elif opcao == "2":
-            mostrar_medicamentos(dados)
+            try:
+                medicamentos = listar_medicamentos()
 
+                if not medicamentos:
+                    print("Nenhum medicamento encontrado.")
+                else:
+                    print("\n--- Medicamentos cadastrados ---")
+                    for med in medicamentos:
+                        print(f"- {med['nome']} | Horários: {med['horarios']}")
+
+            except Exception as erro:
+                print(f"Erro ao listar: {erro}")
+
+        # -------------------------
+        # 3 - MARCAR COMO TOMADO
+        # -------------------------
         elif opcao == "3":
-            nome = input("Nome do medicamento: ")
+            try:
+                medicamentos = listar_medicamentos()
 
-            if marcar_como_tomado(dados, nome):
-                salvar(dados)
-                print("Registro salvo!")
-            else:
-                print("Medicamento não encontrado.")
+                print("\n--- Medicamentos cadastrados ---")
+                for med in medicamentos:
+                    print(f"{med['id']} - {med['nome']}")
 
+                medicamento_id = input("\nDigite o ID do medicamento: ")
+
+                registrar_tomada(medicamento_id)
+
+                print(" Medicamento marcado como tomado!")
+
+            except Exception as erro:
+                print(f"Erro ao registrar tomada: {erro}")
+        # -------------------------
+        # 4 - REMOVER
+        # -------------------------
         elif opcao == "4":
-            remover_info_medicamento(dados)
+            try:
+                medicamentos = listar_medicamentos()
 
+                print("\n--- Medicamentos cadastrados ---")
+                for med in medicamentos:
+                    print(f"{med['id']} - {med['nome']}")
+
+                medicamento_id = input("\nDigite o ID do medicamento a remover: ")
+
+                remover_medicamento(medicamento_id)
+
+                print(" Medicamento removido com sucesso!")
+
+            except Exception as erro:
+                print(f"Erro ao remover: {erro}")
+        # -------------------------
+        # 5 - HISTÓRICO
+        # -------------------------
         elif opcao == "5":
-            consultar_info_medicamento()
+            try:
+                historico = listar_historico()
 
+                if not historico:
+                    print("Nenhum registro de tomadas.")
+                else:
+                    print("\n--- Histórico de tomadas ---")
+
+                    for item in historico:
+                        print(item)
+
+            except Exception as erro:
+                print(f"Erro ao consultar histórico: {erro}")
+
+        # -------------------------
+        # 6 - SAIR
+        # -------------------------
         elif opcao == "6":
-            print("Encerrando o CheckorKaput.")
+            print("Encerrando CheckorKaput...")
             break
 
         else:
-            print("Opção inválida.")
+            print("Opção inválida!")
 
 
 if __name__ == "__main__":
