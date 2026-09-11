@@ -1,5 +1,5 @@
 
-from database import (
+from src.database import (
     cadastrar_medicamento,
     listar_medicamentos,
     remover_medicamento,
