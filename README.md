@@ -116,7 +116,14 @@ O projeto possui pipeline configurada no GitHub Actions que executa automaticame
 
 ---
 
+## Uso de Inteligência Artificial
+
+O projeto utiliza ChatGPT como agente auxiliar durante o desenvolvimento.
+
+As regras de utilização do agente, incluindo consulta à especificação, criação de testes e restrições para alteração de código, estão documentadas em [`AGENTS.md`](AGENTS.md).
 Versão:
+
+---
 
 ```
 1.0.0
