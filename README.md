@@ -213,6 +213,16 @@ A revisão deve verificar:
 
 Sempre que possível, a branch `main` deve permanecer protegida contra commits diretos, priorizando o uso de Pull Requests e revisão por outro integrante.
 
+## Decisões arquiteturais
+
+As principais decisões da nova iteração estão registradas em:
+
+* [ADR-001 — Ambiente reproduzível com Docker](docs/adr/ADR-001-ambiente-docker.md)
+* [ADR-002 — Test harness com pytest e GitHub Actions](docs/adr/ADR-002-test-harness-e-ci.md)
+
+Os refinamentos decorrentes das revisões e dos testes estão registrados na seção 14 da [especificação técnica](docs/SPEC.md).
+
+
 ---
 
 ## Versão

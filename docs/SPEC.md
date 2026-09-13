@@ -441,3 +441,63 @@ A tabela abaixo relaciona os requisitos funcionais às regras de negócio e às 
 | RF-05 — Consultar histórico                  | —                   | Consulta com registros e histórico vazio                                    |
 | RF-06 — Consultar informações de medicamento | RN-06, RN-07        | Consulta válida, entrada vazia e medicamento não encontrado                 |
 | RF-07 — Exibir informações obtidas da API    | RN-07, RN-08        | Tratamento dos campos retornados, campos ausentes e ausência de resultado   |
+
+## 14. Refinamentos da Especificação
+
+### 14.1 Normalização e validação de horários
+
+Os testes da PR #26 revelaram que a implementação aceitava entradas incompatíveis com RN-02 e RN-03.
+
+Ficou explicitado que:
+
+* espaços no início e no fim de cada horário devem ser removidos;
+* entradas vazias após a normalização não são horários válidos;
+* deve restar pelo menos um horário válido;
+* o formato deve conter exatamente dois dígitos para a hora e dois para os minutos;
+* a hora deve estar entre `00` e `23`;
+* os minutos devem estar entre `00` e `59`.
+
+Esse refinamento não altera a regra original; esclarece seus limites e registra a correção motivada pelos testes.
+
+### 14.2 Limite dos testes de integração
+
+Os testes de integração podem executar conjuntamente componentes internos reais, mantendo simulados somente os limites externos.
+
+A PR #26 validou a integração entre a CLI e a camada de persistência, substituindo apenas o cliente do Supabase. Assim, o RNF-06 é preservado sem reduzir o teste a uma única unidade isolada.
+
+### 14.3 Ambiente padronizado
+
+A PR #25 confirmou que o ambiente Docker deve permitir executar:
+
+* a interface CLI;
+* a interface Streamlit;
+* o pytest;
+* o Ruff.
+
+Credenciais deverão ser fornecidas em tempo de execução e não poderão ser incluídas na imagem.
+
+### 14.4 Evidências da integração contínua
+
+A PR #27 refinou a aplicação do RNF-03.
+
+O pipeline deverá:
+
+* executar em pushes e Pull Requests;
+* utilizar Python 3.12;
+* falhar quando o lint ou algum teste falhar;
+* produzir relatório JUnit XML;
+* manter o relatório como artefato utilizável na entrega.
+
+### 14.5 Histórico
+
+| Data       | Origem | Resultado                                                                         |
+| ---------- | ------ | --------------------------------------------------------------------------------- |
+| 2026-09-13 | PR #25 | Ambiente Docker construído e fluxos da aplicação validados.                       |
+| 2026-09-13 | PR #26 | Casos de borda revelaram e motivaram a correção da validação de horários.         |
+| 2026-09-13 | PR #26 | Definido o limite entre componentes internos reais e serviços externos simulados. |
+| 2026-09-13 | PR #27 | Pipeline validado com logs e artefato de testes disponível.                       |
+
+### 14.6 Decisões arquiteturais relacionadas
+
+* [ADR-001 — Ambiente reproduzível com Docker](adr/ADR-001-ambiente-docker.md)
+* [ADR-002 — Test harness com pytest e GitHub Actions](adr/ADR-002-test-harness-e-ci.md)
