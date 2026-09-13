@@ -100,6 +100,52 @@ O projeto possui pipeline configurada no GitHub Actions que executa automaticame
 * verificação de lint
 * execução dos testes
 
+## Execução com Docker
+
+O projeto possui um ambiente padronizado com Python 3.12 para executar a aplicação e a suíte de testes independentemente da configuração local.
+
+### Construir a imagem
+
+```bash
+docker build -t checkorkaput .
+```
+
+### Executar a interface CLI
+
+A interface CLI utiliza o Supabase e requer as variáveis `SUPABASE_URL` e `SUPABASE_KEY`. Elas podem ser fornecidas por um arquivo `.env`, que não deve ser versionado:
+
+```env
+SUPABASE_URL=sua_url
+SUPABASE_KEY=sua_chave
+```
+
+Execute a aplicação:
+
+```bash
+docker run --rm -it --env-file .env checkorkaput
+```
+
+### Executar a interface web
+
+```bash
+docker run --rm -p 8501:8501 checkorkaput \
+  streamlit run streamlit_app.py --server.address=0.0.0.0
+```
+
+A interface estará disponível em `http://localhost:8501`.
+
+### Executar os testes no contêiner
+
+```bash
+docker run --rm checkorkaput pytest -q
+```
+
+### Executar a verificação de qualidade
+
+```bash
+docker run --rm checkorkaput ruff check .
+```
+
 ---
 
 ## Governança de Branches e Pull Requests
