@@ -1,6 +1,10 @@
 import os
+import re
 
 from supabase import Client, create_client
+
+
+PADRAO_HORARIO = re.compile(r"(?:[01]\d|2[0-3]):[0-5]\d")
 
 
 def _get_secret(name: str) -> str:
@@ -37,6 +41,14 @@ def cadastrar_medicamento(nome: str, horarios: list[str]) -> dict:
     if not horarios:
         raise ValueError("Informe pelo menos um horário.")
 
+    horarios = [horario.strip() for horario in horarios if horario.strip()]
+
+    if not horarios:
+        raise ValueError("Informe pelo menos um horário.")
+
+    if any(PADRAO_HORARIO.fullmatch(horario) is None for horario in horarios):
+        raise ValueError("Horário inválido. Use o formato HH:MM.")
+
     dados = {
         "nome": nome,
         "horarios": horarios,
@@ -60,11 +72,7 @@ def listar_medicamentos() -> list[dict]:
 
 def remover_medicamento(medicamento_id: str) -> list[dict]:
     resposta = (
-        get_client()
-        .table("medicamentos")
-        .delete()
-        .eq("id", medicamento_id)
-        .execute()
+        get_client().table("medicamentos").delete().eq("id", medicamento_id).execute()
     )
 
     return resposta.data
