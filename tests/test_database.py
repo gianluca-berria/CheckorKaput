@@ -73,9 +73,7 @@ def test_listar_medicamentos():
     tabela = cliente.table.return_value
     consulta = tabela.select.return_value
     ordenacao = consulta.order.return_value
-    ordenacao.execute.return_value = SimpleNamespace(
-        data=medicamentos
-    )
+    ordenacao.execute.return_value = SimpleNamespace(data=medicamentos)
 
     with patch("src.database.get_client", return_value=cliente):
         resultado = listar_medicamentos()
@@ -121,9 +119,7 @@ def test_registrar_tomada():
 
     cliente = MagicMock()
     tabela = cliente.table.return_value
-    tabela.insert.return_value.execute.return_value = SimpleNamespace(
-        data=[registro]
-    )
+    tabela.insert.return_value.execute.return_value = SimpleNamespace(data=[registro])
 
     with patch("src.database.get_client", return_value=cliente):
         resultado = registrar_tomada("med-1")
@@ -152,19 +148,51 @@ def test_listar_historico():
     tabela = cliente.table.return_value
     consulta = tabela.select.return_value
     ordenacao = consulta.order.return_value
-    ordenacao.execute.return_value = SimpleNamespace(
-        data=historico
-    )
+    ordenacao.execute.return_value = SimpleNamespace(data=historico)
 
     with patch("src.database.get_client", return_value=cliente):
         resultado = listar_historico()
 
     cliente.table.assert_called_once_with("registros_tomada")
-    tabela.select.assert_called_once_with(
-        "id, tomado_em, medicamentos(nome)"
-    )
+    tabela.select.assert_called_once_with("id, tomado_em, medicamentos(nome)")
     consulta.order.assert_called_once_with(
         "tomado_em",
         desc=True,
     )
     assert resultado == historico
+
+
+def test_cadastrar_medicamento_com_horarios_em_branco():
+    with patch("src.database.get_client") as get_client:
+        with pytest.raises(
+            ValueError,
+            match="Informe pelo menos um horário",
+        ):
+            cadastrar_medicamento("Dipirona", ["", "   "])
+
+    get_client.assert_not_called()
+
+
+@pytest.mark.parametrize(
+    "horario_invalido",
+    [
+        "8:00",
+        "24:00",
+        "12:60",
+        "meio-dia",
+    ],
+)
+def test_cadastrar_medicamento_com_horario_invalido(
+    horario_invalido,
+):
+    with patch("src.database.get_client") as get_client:
+        with pytest.raises(
+            ValueError,
+            match="Horário inválido",
+        ):
+            cadastrar_medicamento(
+                "Dipirona",
+                [horario_invalido],
+            )
+
+    get_client.assert_not_called()
