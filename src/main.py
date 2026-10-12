@@ -55,42 +55,41 @@ def main():
         # -------------------------
         # 3 - MARCAR COMO TOMADO
         # -------------------------
-        elif opcao == "3":
+        elif opcao in ("3", "4"):
             try:
                 medicamentos = listar_medicamentos()
+
+                if not medicamentos:
+                    print("Nenhum medicamento encontrado.")
+                    continue
 
                 print("\n--- Medicamentos cadastrados ---")
                 for med in medicamentos:
                     print(f"{med['id']} - {med['nome']}")
 
-                medicamento_id = input("\nDigite o ID do medicamento: ")
+                medicamento_id = input("\nDigite o ID do medicamento: ").strip()
 
-                registrar_tomada(medicamento_id)
+                if not any(
+                    str(med["id"]) == medicamento_id
+                    for med in medicamentos
+                ):
+                    print("Medicamento não encontrado.")
+                    continue
 
-                print(" Medicamento marcado como tomado!")
-
-            except Exception as erro:
-                print(f"Erro ao registrar tomada: {erro}")
-        # -------------------------
-        # 4 - REMOVER
-        # -------------------------
-        elif opcao == "4":
-            try:
-                medicamentos = listar_medicamentos()
-
-                print("\n--- Medicamentos cadastrados ---")
-                for med in medicamentos:
-                    print(f"{med['id']} - {med['nome']}")
-
-                medicamento_id = input("\nDigite o ID do medicamento a remover: ")
-
-                remover_medicamento(medicamento_id)
-
-                print(" Medicamento removido com sucesso!")
+                if opcao == "3":
+                    registrar_tomada(medicamento_id)
+                    print("Medicamento marcado como tomado!")
+                else:
+                    removidos = remover_medicamento(medicamento_id)
+                    if removidos:
+                        print("Medicamento removido com sucesso!")
+                    else:
+                        print("Medicamento não encontrado.")
 
             except Exception as erro:
-                print(f"Erro ao remover: {erro}")
-        # -------------------------
+                operacao = "registrar tomada" if opcao == "3" else "remover"
+                print(f"Erro ao {operacao}: {erro}")
+
         # 5 - HISTÓRICO
         # -------------------------
         elif opcao == "5":
