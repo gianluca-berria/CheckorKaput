@@ -205,6 +205,53 @@ python -m src.main
 
 O menu permite adicionar, listar, marcar como tomado, remover medicamentos, consultar o histórico e sair.
 
+### Usando a CLI pelo terminal (passo a passo)
+
+A CLI é a versão que funciona diretamente no terminal, sem abrir uma página web. Ela permite gerenciar os medicamentos cadastrados no Supabase.
+
+1. Abra o terminal na pasta do projeto (`CheckorKaput`).
+2. Ative o ambiente virtual, caso ainda não esteja ativo.
+3. Configure `SUPABASE_URL` e `SUPABASE_KEY`, conforme a seção anterior.
+4. Inicie o programa:
+
+**Windows PowerShell:**
+
+```powershell
+python -m src.main
+```
+
+**Linux/macOS:**
+
+```bash
+python -m src.main
+```
+
+Quando o programa iniciar, o menu será semelhante a este:
+
+```text
+===== CheckorKaput CLI =====
+1 - Adicionar medicamento
+2 - Listar medicamentos
+3 - Marcar como tomado
+4 - Remover medicamento
+5 - Ver histórico de tomadas
+6 - Sair
+Escolha:
+```
+
+Digite o número da opção desejada e pressione **Enter**.
+
+- **Opção 1 — Adicionar:** informe o nome e os horários separados por vírgula, por exemplo `08:00,20:00`.
+- **Opção 2 — Listar:** mostra os medicamentos cadastrados e seus horários.
+- **Opção 3 — Marcar como tomado:** selecione a opção e informe o ID do medicamento listado pelo programa.
+- **Opção 4 — Remover:** informe o ID do medicamento que deseja remover.
+- **Opção 5 — Histórico:** consulta os registros de tomadas disponíveis.
+- **Opção 6 — Sair:** encerra a aplicação.
+
+**Importante:** as opções que consultam ou alteram os medicamentos precisam de acesso ao Supabase. Se aparecer um erro de conexão ou configuração, confirme as variáveis de ambiente, a conexão com a internet e se as tabelas necessárias existem no banco.
+
+Para interromper a execução, também é possível usar `Ctrl+C` no terminal, embora seja preferível sair pela opção **6 - Sair**.
+
 ### Interface web Streamlit
 
 ```bash
@@ -357,7 +404,4 @@ Consulte também a [especificação técnica](docs/SPEC.md) para requisitos, reg
 - [Documentação do pytest](https://docs.pytest.org/)
 - [Documentação do Ruff](https://docs.astral.sh/ruff/)
 - [Documentação do Docker](https://docs.docker.com/)
-
 ---
-
-**Versão da documentação:** preparada para a entrega da Etapa Intermediária. Atualize este README sempre que a implementação, os comandos, os testes ou as decisões técnicas mudarem.
