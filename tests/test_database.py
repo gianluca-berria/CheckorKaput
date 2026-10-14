@@ -119,12 +119,19 @@ def test_registrar_tomada():
 
     cliente = MagicMock()
     tabela = cliente.table.return_value
+    tabela.select.return_value.eq.return_value.limit.return_value.execute.return_value = (
+        SimpleNamespace(data=[{"id": "med-1"}])
+    )
     tabela.insert.return_value.execute.return_value = SimpleNamespace(data=[registro])
 
     with patch("src.database.get_client", return_value=cliente):
         resultado = registrar_tomada("med-1")
 
-    cliente.table.assert_called_once_with("registros_tomada")
+    assert cliente.table.call_count == 2
+    cliente.table.assert_any_call("medicamentos")
+    cliente.table.assert_any_call("registros_tomada")
+    tabela.select.assert_called_once_with("id")
+    tabela.select.return_value.eq.assert_called_once_with("id", "med-1")
     tabela.insert.assert_called_once_with(
         {
             "medicamento_id": "med-1",

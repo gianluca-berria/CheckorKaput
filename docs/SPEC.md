@@ -501,3 +501,31 @@ O pipeline deverá:
 
 * [ADR-001 — Ambiente reproduzível com Docker](adr/ADR-001-ambiente-docker.md)
 * [ADR-002 — Test harness com pytest e GitHub Actions](adr/ADR-002-test-harness-e-ci.md)
+
+### 14.7 Operações com medicamentos inexistentes — Issue #31
+
+A inspeção da CLI identificou que a remoção anunciava sucesso mesmo quando
+a persistência retornava uma lista vazia. Também faltavam validação explícita
+de existência no registro de tomada e tratamento de listas vazias nas duas
+operações.
+
+Foram corrigidos os comportamentos relacionados a RF-03, RF-04, RN-04 e RN-05:
+
+- listas vazias apresentam mensagem informativa sem solicitar identificador;
+- a CLI normaliza o identificador e rejeita IDs ausentes da listagem;
+- a remoção somente anuncia sucesso quando retorna registros removidos;
+- a persistência rejeita identificadores vazios e consulta a existência do
+  medicamento antes de inserir uma tomada;
+- respostas de inserção vazias produzem erro controlado.
+
+Os testes de regressão cobrem os fluxos válidos e os casos de borda, incluindo
+remoção sem resultado e medicamento ausente na consulta feita após a listagem.
+
+Os testes de integração executam CLI e persistência reais, simulando apenas
+o cliente externo. Não comprovam a configuração do Supabase nem a proteção
+contra exclusão concorrente entre consulta e inserção; esta última depende
+também da integridade referencial no banco.
+
+Validação local em Docker em 12/10/2026: 42 testes aprovados e Ruff sem erros.
+Este registro esclarece a aplicação das regras existentes, sem ampliar o
+escopo funcional.
