@@ -404,4 +404,5 @@ Consulte também a [especificação técnica](docs/SPEC.md) para requisitos, reg
 - [Documentação do pytest](https://docs.pytest.org/)
 - [Documentação do Ruff](https://docs.astral.sh/ruff/)
 - [Documentação do Docker](https://docs.docker.com/)
+
 ---
