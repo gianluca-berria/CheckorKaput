@@ -1,0 +1,44 @@
+tests/test_cli_database_integration.py::test_cli_cadastra_medicamento_integrando_database
+tests/test_cli_database_integration.py::test_cli_remocao_sem_resultado_nao_confirma_sucesso
+tests/test_cli_database_integration.py::test_cli_tomada_de_medicamento_removido_apos_listagem
+tests/test_cli_database_integration.py::test_cli_registra_tomada_integrando_database
+tests/test_cli_missing_medications.py::test_lista_vazia_nao_solicita_id_nem_executa_operacao[3]
+tests/test_cli_missing_medications.py::test_lista_vazia_nao_solicita_id_nem_executa_operacao[4]
+tests/test_cli_missing_medications.py::test_id_inexistente_nao_executa_operacao[3]
+tests/test_cli_missing_medications.py::test_id_inexistente_nao_executa_operacao[4]
+tests/test_cli_missing_medications.py::test_remocao_sem_resultado_nao_anuncia_sucesso
+tests/test_cli_missing_medications.py::test_operacao_valida_preservada[3-Medicamento marcado como tomado!]
+tests/test_cli_missing_medications.py::test_operacao_valida_preservada[4-Medicamento removido com sucesso!]
+tests/test_database.py::test_cadastrar_medicamento_valido
+tests/test_database.py::test_cadastrar_medicamento_sem_nome
+tests/test_database.py::test_cadastrar_medicamento_sem_horario
+tests/test_database.py::test_listar_medicamentos
+tests/test_database.py::test_remover_medicamento
+tests/test_database.py::test_registrar_tomada
+tests/test_database.py::test_listar_historico
+tests/test_database.py::test_cadastrar_medicamento_com_horarios_em_branco
+tests/test_database.py::test_cadastrar_medicamento_com_horario_invalido[8:00]
+tests/test_database.py::test_cadastrar_medicamento_com_horario_invalido[24:00]
+tests/test_database.py::test_cadastrar_medicamento_com_horario_invalido[12:60]
+tests/test_database.py::test_cadastrar_medicamento_com_horario_invalido[meio-dia]
+tests/test_database_missing_medications.py::test_tomada_sem_id_nao_acessa_banco[]
+tests/test_database_missing_medications.py::test_tomada_sem_id_nao_acessa_banco[   ]
+tests/test_database_missing_medications.py::test_tomada_inexistente_nao_insere_registro
+tests/test_database_missing_medications.py::test_tomada_com_resposta_vazia_produz_erro_controlado
+tests/test_drug_api_integration.py::test_consultar_medicamento_com_resposta_da_api
+tests/test_drug_api_integration.py::test_consultar_medicamento_sem_resultados
+tests/test_drug_api_integration.py::test_consultar_medicamento_erro_404
+tests/test_drug_api_integration.py::test_consultar_medicamento_envia_parametros_corretos
+tests/test_main.py::test_menu_saida
+tests/test_main.py::test_menu_opcao_invalida
+tests/test_main.py::test_menu_listar_medicamentos
+tests/test_main.py::test_menu_listar_sem_medicamentos
+tests/test_reminder.py::test_adicionar_medicamento
+tests/test_reminder.py::test_adicionar_medicamento_com_multiplos_horarios
+tests/test_reminder.py::test_nome_vazio
+tests/test_reminder.py::test_marcar_como_tomado
+tests/test_reminder.py::test_marcar_medicamento_inexistente
+tests/test_reminder.py::test_remover_medicamento
+tests/test_reminder.py::test_remover_medicamento_inexistente
+
+42 tests collected in 0.50s
