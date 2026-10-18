@@ -79,11 +79,32 @@ def remover_medicamento(medicamento_id: str) -> list[dict]:
 
 
 def registrar_tomada(medicamento_id: str) -> dict:
-    dados = {
-        "medicamento_id": medicamento_id,
-    }
+    medicamento_id = medicamento_id.strip()
 
-    resposta = get_client().table("registros_tomada").insert(dados).execute()
+    if not medicamento_id:
+        raise ValueError("Informe o ID do medicamento.")
+
+    cliente = get_client()
+    medicamento = (
+        cliente.table("medicamentos")
+        .select("id")
+        .eq("id", medicamento_id)
+        .limit(1)
+        .execute()
+    )
+
+    if not medicamento.data:
+        raise ValueError("Medicamento não encontrado.")
+
+    resposta = (
+        cliente.table("registros_tomada")
+        .insert({"medicamento_id": medicamento_id})
+        .execute()
+    )
+
+    if not resposta.data:
+        raise RuntimeError("Não foi possível registrar a tomada.")
+
     return resposta.data[0]
 
 

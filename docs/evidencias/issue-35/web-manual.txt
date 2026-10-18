@@ -1,0 +1,8 @@
+Validação manual — 17/10/2026
+Responsável: Gianluca Berria
+Interface: Streamlit local em Docker, porta 8502.
+PASSOU — acetaminophen: informações apresentadas.
+PASSOU — zzzzcheckorkaput123456: ausência de resultado informada.
+PASSOU — campo vazio: validação sem interromper a aplicação.
+Resultados confirmados pelo responsável pela execução manual.
+Health check: resposta ok observada no terminal.

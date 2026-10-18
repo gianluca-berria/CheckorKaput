@@ -1,0 +1,44 @@
+#0 building with "default" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 309B done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/python:3.12-slim
+#2 DONE 1.4s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 203B done
+#3 DONE 0.0s
+
+#4 [internal] load build context
+#4 transferring context: 94.69kB done
+#4 DONE 0.0s
+
+#5 [1/5] FROM docker.io/library/python:3.12-slim@sha256:a6e34c598f2467ed0e9a8d349809fcd8b5c603269512df273a0bb1784edc11b1
+#5 resolve docker.io/library/python:3.12-slim@sha256:a6e34c598f2467ed0e9a8d349809fcd8b5c603269512df273a0bb1784edc11b1 0.0s done
+#5 DONE 0.0s
+
+#6 [2/5] WORKDIR /app
+#6 CACHED
+
+#7 [3/5] COPY requirements.txt .
+#7 CACHED
+
+#8 [4/5] RUN pip install --no-cache-dir -r requirements.txt
+#8 CACHED
+
+#9 [5/5] COPY . .
+#9 DONE 0.1s
+
+#10 exporting to image
+#10 exporting layers
+#10 exporting layers 0.2s done
+#10 exporting manifest sha256:6d38b5cf5d58ddaf932fa3ba03f465836ee3c0d8143705c4a99942a0adaa3926 0.0s done
+#10 exporting config sha256:ed3470ed33d6abf332bab95e64cf967235c00898d3d9b5a680f0d7b905ecfcbd 0.0s done
+#10 exporting attestation manifest sha256:b62ddde156d34744c75a9a9457a9ccc53c2f39ff79d5fa611c7792d6e2f320ca 0.0s done
+#10 exporting manifest list sha256:4ba1b5b03625b9418f0786b24eed7f1d78ec52d6986f734da40551f207b99641 0.0s done
+#10 naming to docker.io/library/checkorkaput:latest
+#10 naming to docker.io/library/checkorkaput:latest done
+#10 unpacking to docker.io/library/checkorkaput:latest 0.1s done
+#10 DONE 0.4s
