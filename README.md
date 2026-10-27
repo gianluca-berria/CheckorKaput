@@ -84,11 +84,8 @@ Para executar localmente, instale Git e Python 3.12. Para os comandos em contêi
 | `streamlit_app.py` | Interface web de consulta informativa. |
 | `src/drug_api.py` | Requisição à API openFDA e normalização dos dados retornados. |
 | `tests/` | Testes unitários, casos de borda e testes de integração. |
-| `src/reminder.py` | Implementação legada de manipulação de medicamentos em memória. |
-| `src/storage.py` | Implementação legada de persistência em JSON. |
-| `data/meds.json` | Arquivo de dados legado, mantido no repositório. |
 
-Os módulos `src/reminder.py` e `src/storage.py`, assim como `data/meds.json`, pertencem à implementação anterior. A persistência principal utilizada pela CLI atual é o Supabase.
+A persistência da CLI utiliza o Supabase. Os componentes anteriores de armazenamento local foram removidos na issue #44.
 
 ### Diagrama do fluxo da aplicação
 
@@ -385,7 +382,6 @@ Consulte também a [especificação técnica](docs/SPEC.md) para requisitos, reg
 - A interface Streamlit depende de acesso à internet e da disponibilidade da API openFDA; indisponibilidade ou mudanças na API podem impedir consultas.
 - A consulta à openFDA é informativa e não deve ser usada para decidir ou modificar tratamentos médicos.
 - A aplicação não substitui alarmes de um sistema operacional nem garante que uma pessoa receberá uma notificação no horário cadastrado; a funcionalidade atual da CLI registra horários e tomadas.
-- Os componentes `src/reminder.py`, `src/storage.py` e `data/meds.json` são legados e não representam o caminho principal de persistência atual.
 - A CLI e a consulta web são fluxos separados; a interface web não apresenta os medicamentos pessoais armazenados no Supabase.
 - O esquema e as políticas de acesso do Supabase precisam estar preparados no projeto remoto. As credenciais não são fornecidas no repositório.
 - A cobertura de testes não garante ausência de defeitos. Confira sempre o resultado de pytest, Ruff e CI do commit que será entregue.

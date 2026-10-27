@@ -12,11 +12,12 @@ from src.database import (
 )
 
 
-def test_cadastrar_medicamento_valido():
+@pytest.mark.parametrize("horarios", [["08:00"], ["08:00", "20:00"]])
+def test_cadastrar_medicamento_valido(horarios):
     medicamento = {
         "id": "med-1",
         "nome": "Dipirona",
-        "horarios": ["08:00"],
+        "horarios": horarios,
     }
 
     cliente = MagicMock()
@@ -26,13 +27,13 @@ def test_cadastrar_medicamento_valido():
     )
 
     with patch("src.database.get_client", return_value=cliente):
-        resultado = cadastrar_medicamento(" Dipirona ", ["08:00"])
+        resultado = cadastrar_medicamento(" Dipirona ", horarios)
 
     cliente.table.assert_called_once_with("medicamentos")
     tabela.insert.assert_called_once_with(
         {
             "nome": "Dipirona",
-            "horarios": ["08:00"],
+            "horarios": horarios,
         }
     )
     assert resultado == medicamento

@@ -60,11 +60,9 @@ A implementação atual é composta pelos seguintes elementos principais:
 * `src/database.py`: camada de acesso ao Supabase, responsável pela persistência dos medicamentos e registros de tomada;
 * `src/drug_api.py`: integração com a API pública openFDA para consulta de informações sobre medicamentos;
 * `streamlit_app.py`: interface web para consulta de medicamentos utilizando `src/drug_api.py`;
-* `src/reminder.py`: implementação anterior das regras de manipulação de medicamentos em memória;
-* `src/storage.py`: mecanismo anterior de persistência utilizando arquivo JSON;
 * `tests/`: suíte de testes automatizados do sistema.
 
-Os módulos `src/reminder.py` e `src/storage.py`, assim como o arquivo `data/meds.json`, pertencem a uma implementação anterior do projeto e são mantidos temporariamente por compatibilidade e suporte aos testes existentes.
+A persistência da CLI utiliza exclusivamente a camada Supabase. Os componentes legados de armazenamento local foram removidos na issue #44.
 
 A arquitetura utilizada como referência para novas alterações nesta iteração deverá priorizar os componentes atualmente utilizados pela aplicação.
 
@@ -370,19 +368,12 @@ Durante esta iteração, a estrutura será reorganizada para distinguir testes u
 
 Os testes deverão possuir relação rastreável com os requisitos e regras definidos nesta especificação.
 
-### 10.6 Componentes legados
+### 10.6 Remoção dos componentes legados
 
-Os arquivos:
-
-* `src/reminder.py`;
-* `src/storage.py`;
-* `data/meds.json`;
-
-fazem parte de uma implementação anterior do CheckorKaput.
-
-Eles poderão permanecer no repositório durante esta iteração enquanto houver dependências ou testes relacionados a seu comportamento.
-
-Novas funcionalidades não deverão depender desses componentes sem decisão arquitetural explícita.
+A issue #44 remove os módulos de armazenamento local e manipulação em memória,
+que não eram utilizados pela CLI nem pela interface web. As regras de cadastro,
+registro de tomada e remoção são validadas nos testes da persistência atual e da
+integração CLI/persistência, com o cliente externo simulado conforme RNF-06.
 
 ## 11. Fluxos Principais
 
@@ -529,3 +520,18 @@ também da integridade referencial no banco.
 Validação local em Docker em 12/10/2026: 42 testes aprovados e Ruff sem erros.
 Este registro esclarece a aplicação das regras existentes, sem ampliar o
 escopo funcional.
+
+### 14.8 Higienização dos componentes legados — Issue #44
+
+A remoção de `src/reminder.py`, `src/storage.py` e `data/meds.json` conclui a
+limpeza prevista na issue #8. A inspeção confirmou que apenas os testes de
+`reminder.py` importavam esses componentes; a CLI já utilizava `src/database.py`.
+
+Os cenários de cadastro, nome obrigatório, registro de tomada, remoção e
+medicamento inexistente (RF-01, RF-03, RF-04 e RN-01 a RN-05) permanecem
+cobertos na camada atual. O cadastro com múltiplos horários foi incorporado
+ao teste de persistência. Não há alteração dos contratos públicos atuais.
+
+O documento duplicado de experiência e governança foi removido. Evidências
+históricas da Entrega 2 permanecem como registro da versão então validada e
+não representam a composição da suíte após esta limpeza.
