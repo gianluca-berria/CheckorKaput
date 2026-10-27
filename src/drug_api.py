@@ -1,6 +1,5 @@
 import requests
 
-
 API_URL = "https://api.fda.gov/drug/label.json"
 
 

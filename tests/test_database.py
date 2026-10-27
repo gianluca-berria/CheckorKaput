@@ -40,23 +40,21 @@ def test_cadastrar_medicamento_valido(horarios):
 
 
 def test_cadastrar_medicamento_sem_nome():
-    with patch("src.database.get_client") as get_client:
-        with pytest.raises(
-            ValueError,
-            match="Nome do medicamento não pode ser vazio",
-        ):
-            cadastrar_medicamento("   ", ["08:00"])
+    with patch("src.database.get_client") as get_client, pytest.raises(
+        ValueError,
+        match="Nome do medicamento não pode ser vazio",
+    ):
+        cadastrar_medicamento("   ", ["08:00"])
 
     get_client.assert_not_called()
 
 
 def test_cadastrar_medicamento_sem_horario():
-    with patch("src.database.get_client") as get_client:
-        with pytest.raises(
-            ValueError,
-            match="Informe pelo menos um horário",
-        ):
-            cadastrar_medicamento("Dipirona", [])
+    with patch("src.database.get_client") as get_client, pytest.raises(
+        ValueError,
+        match="Informe pelo menos um horário",
+    ):
+        cadastrar_medicamento("Dipirona", [])
 
     get_client.assert_not_called()
 
@@ -171,12 +169,11 @@ def test_listar_historico():
 
 
 def test_cadastrar_medicamento_com_horarios_em_branco():
-    with patch("src.database.get_client") as get_client:
-        with pytest.raises(
-            ValueError,
-            match="Informe pelo menos um horário",
-        ):
-            cadastrar_medicamento("Dipirona", ["", "   "])
+    with patch("src.database.get_client") as get_client, pytest.raises(
+        ValueError,
+        match="Informe pelo menos um horário",
+    ):
+        cadastrar_medicamento("Dipirona", ["", "   "])
 
     get_client.assert_not_called()
 
@@ -193,14 +190,13 @@ def test_cadastrar_medicamento_com_horarios_em_branco():
 def test_cadastrar_medicamento_com_horario_invalido(
     horario_invalido,
 ):
-    with patch("src.database.get_client") as get_client:
-        with pytest.raises(
-            ValueError,
-            match="Horário inválido",
-        ):
-            cadastrar_medicamento(
-                "Dipirona",
-                [horario_invalido],
-            )
+    with patch("src.database.get_client") as get_client, pytest.raises(
+        ValueError,
+        match="Horário inválido",
+    ):
+        cadastrar_medicamento(
+            "Dipirona",
+            [horario_invalido],
+        )
 
     get_client.assert_not_called()
