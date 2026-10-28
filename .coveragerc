@@ -1,0 +1,19 @@
+
+[run]
+source =
+    src
+    .
+
+omit =
+    */tests/*
+    */.venv/*
+    */site-packages/*
+    */htmlcov/*
+    */.pytest_cache/*
+    */__pycache__/*
+    */.ruff_cache/*
+
+
+[report]
+show_missing = True
+skip_covered = False

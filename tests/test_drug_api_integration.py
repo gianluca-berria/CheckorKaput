@@ -1,3 +1,5 @@
+import requests
+
 from src.drug_api import consultar_medicamento
 
 
@@ -74,7 +76,7 @@ def test_consultar_medicamento_erro_404(monkeypatch):
         status_code = 404
 
         def raise_for_status(self):
-            raise Exception("Erro HTTP")
+            raise requests.HTTPError("Erro HTTP")
 
     def fake_get(url, params, timeout):
         return FakeResponseErro()
