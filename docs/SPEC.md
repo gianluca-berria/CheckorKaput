@@ -34,404 +34,332 @@ O objetivo do sistema é fornecer uma aplicação simples para:
 
 O sistema não tem como objetivo fornecer diagnóstico, prescrição, recomendação de tratamento ou substituir acompanhamento médico ou farmacêutico.
 
-## 4. Escopo desta Iteração
+## 4. Escopo
 
-Esta iteração utiliza como baseline a implementação já existente do CheckorKaput e busca formalizar seu desenvolvimento através de Spec-Driven Development.
+Esta especificação descreve o estado atual (*As-Built*) do CheckorKaput, considerando a implementação existente no repositório.
 
-Fazem parte do escopo desta iteração:
+O sistema possui duas interfaces independentes:
 
-* documentação formal dos requisitos e regras de negócio;
-* definição dos contratos de entrada e saída dos principais componentes;
-* documentação da arquitetura e responsabilidades dos componentes;
-* padronização do ambiente de execução;
-* reorganização e expansão da infraestrutura de testes;
-* inclusão de cenários de borda e testes de integração;
-* execução automatizada dos testes através de integração contínua;
-* registro das principais decisões arquiteturais;
-* documentação do uso de agente de IA durante o desenvolvimento.
+- **Interface CLI:** permite cadastrar, listar e remover medicamentos, registrar tomadas e consultar o histórico. As operações de persistência utilizam o Supabase.
+- **Interface Web:** permite consultar informações de medicamentos por meio da API pública openFDA, utilizando o Streamlit.
 
-Funcionalidades não relacionadas aos objetivos definidos nesta especificação deverão ser tratadas como evoluções futuras do projeto.
+A especificação documenta os requisitos funcionais e não funcionais implementados, as regras de negócio, os contratos observados no código, os componentes da arquitetura, as integrações externas e os testes automatizados existentes.
 
-## 5. Estado Atual da Arquitetura
+Também registra as limitações conhecidas e as decisões técnicas relevantes para compreender e manter a versão atual do projeto.
 
-A implementação atual é composta pelos seguintes elementos principais:
+Não fazem parte do escopo funcionalidades futuras que ainda não estejam implementadas ou comprovadas pelo código e pelos testes.
 
-* `src/main.py`: interface de linha de comando e ponto de entrada das funcionalidades de gerenciamento de medicamentos;
-* `src/database.py`: camada de acesso ao Supabase, responsável pela persistência dos medicamentos e registros de tomada;
-* `src/drug_api.py`: integração com a API pública openFDA para consulta de informações sobre medicamentos;
-* `streamlit_app.py`: interface web para consulta de medicamentos utilizando `src/drug_api.py`;
-* `tests/`: suíte de testes automatizados do sistema.
+## 5. Arquitetura atual
 
-A persistência da CLI utiliza exclusivamente a camada Supabase. Os componentes legados de armazenamento local foram removidos na issue #44.
+A arquitetura implementada do CheckorKaput é organizada em duas interfaces que utilizam integrações distintas.
 
-A arquitetura utilizada como referência para novas alterações nesta iteração deverá priorizar os componentes atualmente utilizados pela aplicação.
+### 5.1. Interface CLI
 
-## 6. Requisitos Funcionais
+A interface de linha de comando está implementada em `src/main.py`. Ela apresenta o menu de operações e recebe as entradas do usuário.
 
-### RF-01 — Cadastrar medicamento
+As operações de persistência são delegadas ao módulo `src/database.py`, responsável por criar o cliente Supabase e executar as consultas nas tabelas utilizadas pelo sistema.
 
-O sistema deve permitir o cadastro de um medicamento informando seu nome e pelo menos um horário de uso.
+As funcionalidades disponíveis são:
 
-### RF-02 — Listar medicamentos
+- Cadastrar medicamentos com nome e horários.
+- Listar medicamentos cadastrados.
+- Registrar a tomada de um medicamento existente.
+- Remover medicamentos cadastrados.
+- Consultar o histórico de tomadas.
 
-O sistema deve permitir a consulta dos medicamentos cadastrados, apresentando ao menos o nome e os horários associados a cada medicamento.
+### 5.2. Interface Web
 
-### RF-03 — Registrar tomada
+A interface Web está implementada em `streamlit_app.py`, utilizando o Streamlit.
 
-O sistema deve permitir registrar que um medicamento cadastrado foi tomado.
+Ela permite informar o nome genérico de um medicamento e consultar informações disponibilizadas pela API pública openFDA.
 
-O registro deve estar associado ao medicamento correspondente.
+A comunicação com a API é realizada pelo módulo `src/drug_api.py`, que processa a resposta e retorna informações como nome genérico, nome comercial, fabricante, tipo de produto e aviso.
 
-### RF-04 — Remover medicamento
+Essa interface possui finalidade exclusivamente informativa e não realiza diagnóstico ou recomendação de tratamento.
 
-O sistema deve permitir a remoção de um medicamento previamente cadastrado.
+### 5.3. Persistência e integrações externas
 
-### RF-05 — Consultar histórico de tomadas
+A persistência da interface CLI utiliza o Supabase por meio da biblioteca `supabase-py`.
 
-O sistema deve permitir consultar os registros de tomadas realizados anteriormente.
+O módulo `src/database.py` consulta as tabelas `medicamentos` e `registros_tomada`. O código utiliza campos como `id`, `nome`, `horarios`, `created_at`, `medicamento_id` e `tomado_em`, além de uma consulta relacionada entre as duas tabelas para apresentar o histórico.
 
-O histórico deve permitir identificar o medicamento relacionado e o momento em que a tomada foi registrada.
+As credenciais são obtidas prioritariamente pelas variáveis de ambiente `SUPABASE_URL` e `SUPABASE_KEY`. Quando não estão disponíveis, o módulo tenta consultar os segredos do Streamlit (`st.secrets`).
 
-### RF-06 — Consultar informações de medicamento
+A interface Web utiliza a API pública openFDA, por meio de requisições HTTP realizadas com a biblioteca Requests.
 
-O sistema deve permitir consultar informações públicas sobre um medicamento através da API openFDA utilizando seu nome genérico.
+O repositório não contém scripts de criação do banco, migrações ou definição completa do esquema SQL. Portanto, os tipos, as restrições, as políticas de acesso e os relacionamentos físicos do banco remoto não são especificados nesta documentação.
 
-### RF-07 — Exibir informações obtidas da API
+### 5.4. Testes automatizados
 
-Quando a consulta à API openFDA retornar um medicamento, o sistema deve apresentar, quando disponíveis:
+Os testes estão organizados no diretório `tests/` e verificam comportamentos da interface CLI, operações do módulo de persistência e integração com a API openFDA.
 
-* nome genérico;
-* nome comercial;
-* fabricante;
-* tipo de produto;
-* avisos relacionados ao medicamento.
+As integrações externas são simuladas por meio de mocks e objetos de teste, permitindo validar os comportamentos sem depender de chamadas reais ao Supabase ou à API openFDA.
 
-Quando determinada informação não estiver disponível, o sistema deverá apresentar uma indicação correspondente em vez de interromper a execução.
+A interface Streamlit não possui testes automatizados específicos no conjunto atual.
 
-## 7. Requisitos Não Funcionais
+### 5.5. Estrutura principal do projeto
 
-### RNF-01 — Plataforma
+- `src/main.py`: menu e fluxo da interface CLI.
+- `src/database.py`: operações de persistência no Supabase.
+- `src/drug_api.py`: consulta e tratamento das respostas da API openFDA.
+- `streamlit_app.py`: interface Web com Streamlit.
+- `tests/`: testes automatizados.
+- `docs/`: especificações e documentação técnica.
 
-A aplicação deve ser compatível com Python 3.12.
+## 6. Requisitos funcionais
 
-### RNF-02 — Testabilidade
+Os requisitos funcionais abaixo descrevem as funcionalidades presentes na implementação atual.
 
-Os comportamentos definidos nesta especificação devem possuir suporte para validação através de testes automatizados utilizando pytest.
+| ID | Requisito | Implementação |
+|---|---|---|
+| RF-01 | Cadastrar medicamentos | O usuário informa o nome e um ou mais horários. Os dados são enviados à tabela `medicamentos` do Supabase. |
+| RF-02 | Listar medicamentos | O sistema consulta os medicamentos cadastrados e apresenta seus nomes e horários na CLI. |
+| RF-03 | Registrar tomada | O usuário seleciona um medicamento existente pelo ID. O sistema registra a tomada na tabela `registros_tomada`. |
+| RF-04 | Remover medicamento | O usuário seleciona um medicamento existente pelo ID e solicita sua remoção. |
+| RF-05 | Consultar histórico | O sistema consulta os registros de tomada e apresenta os dados retornados pelo Supabase. |
+| RF-06 | Consultar informações de medicamentos | A interface Web permite pesquisar um medicamento pelo nome genérico na API pública openFDA. |
+| RF-07 | Apresentar informações da consulta | A interface Web apresenta nome genérico, nome comercial, fabricante, tipo de produto e aviso, quando disponibilizados pela API. |
 
-### RNF-03 — Integração Contínua
+As funcionalidades de cadastro, listagem, registro de tomada, remoção e histórico pertencem à interface CLI. A consulta à openFDA pertence à interface Web e não representa uma integração com o cadastro de medicamentos do Supabase.
 
-A suíte de testes e as verificações de qualidade deverão poder ser executadas automaticamente através do GitHub Actions.
+## 7. Requisitos não funcionais
 
-### RNF-04 — Reprodutibilidade
+Os requisitos não funcionais descrevem características técnicas e operacionais observadas na implementação atual.
 
-O projeto deverá possuir um ambiente padronizado que permita executar a aplicação e seus testes independentemente da configuração específica da máquina do desenvolvedor.
+| ID | Requisito | Situação na implementação |
+|---|---|---|
+| RNF-01 | Compatibilidade com Python 3.12 | O ambiente de CI e a imagem Docker utilizam Python 3.12. |
+| RNF-02 | Testes automatizados | O projeto utiliza pytest. A execução atual da suíte apresenta 36 testes aprovados. |
+| RNF-03 | Integração contínua | O GitHub Actions executa verificações com Ruff e pytest. |
+| RNF-04 | Empacotamento com Docker | O repositório possui Dockerfile baseado em `python:3.12-slim`. A validação local depende de um ambiente com Docker instalado. |
+| RNF-05 | Proteção de credenciais | As credenciais do Supabase são obtidas por variáveis de ambiente ou pelos segredos do Streamlit, sem necessidade de mantê-las diretamente no código-fonte. |
+| RNF-06 | Isolamento de integrações externas nos testes | Os testes utilizam mocks e objetos simulados para verificar os comportamentos sem depender de serviços externos reais. |
 
-Nesta iteração, essa padronização será realizada utilizando Docker.
+A existência de configurações e arquivos de infraestrutura não representa, por si só, comprovação de execução em todos os ambientes. As validações devem ser registradas conforme as evidências disponíveis.
 
-### RNF-05 — Configuração de credenciais
+## 8. Regras de negócio
 
-Credenciais e chaves necessárias para serviços externos não deverão ser armazenadas diretamente no código-fonte.
+As regras abaixo refletem as validações observadas no código da versão atual.
 
-As configurações de acesso ao Supabase deverão ser fornecidas através de variáveis de ambiente ou mecanismo equivalente de gerenciamento de segredos.
+| ID | Regra | Comportamento implementado |
+|---|---|---|
+| RN-01 | Nome obrigatório | O cadastro rejeita nomes vazios ou compostos apenas por espaços. |
+| RN-02 | Horário obrigatório | O cadastro exige pelo menos um horário válido. |
+| RN-03 | Formato de horário | Os horários devem seguir o formato `HH:MM`, com horas entre `00` e `23` e minutos entre `00` e `59`. |
+| RN-04 | Medicamento existente para registrar tomada | O sistema verifica a existência do medicamento antes de inserir o registro de tomada. |
+| RN-05 | Medicamento existente para remoção | A CLI verifica se o ID informado pertence a um medicamento listado antes de solicitar a remoção. |
+| RN-06 | Consulta openFDA com entrada | A função de consulta rejeita nomes vazios ou compostos apenas por espaços. |
+| RN-07 | Consulta sem resultados | Quando a API retorna HTTP 404 ou não apresenta resultados, a função retorna `None`. |
+| RN-08 | Uso informativo | A consulta apresenta informações disponibilizadas pela API e não realiza diagnóstico nem recomenda tratamento. |
 
-### RNF-06 — Independência de serviços externos nos testes
+As regras de validação da CLI e as validações internas do módulo de persistência não são necessariamente idênticas. A documentação considera o comportamento efetivamente observado em cada camada.
 
-Os testes automatizados não deverão depender da disponibilidade imprevisível de serviços externos para concluir a suíte principal com sucesso.
+## 9. Contratos
 
-Integrações externas deverão ser isoladas ou simuladas quando necessário.
+Esta seção descreve os contratos observados nos módulos da implementação atual. Os retornos apresentados correspondem às estruturas utilizadas pelo código, não a uma definição completa do esquema físico do Supabase.
 
-## 8. Regras de Negócio
+### 9.1. Cadastro de medicamento
 
-### RN-01 — Nome obrigatório
+A função `cadastrar_medicamento(nome, horarios)`, em `src/database.py`, recebe o nome do medicamento e uma lista de horários.
 
-Um medicamento não poderá ser cadastrado com nome vazio ou composto apenas por espaços em branco.
+- Remove espaços excedentes do nome e dos horários.
+- Rejeita nome vazio, lista de horários vazia e horários fora do padrão `HH:MM`.
+- Insere os dados na tabela `medicamentos`.
+- Retorna o primeiro registro disponibilizado pela resposta do Supabase.
+- A implementação acessa diretamente o primeiro elemento da resposta (`resposta.data[0]`), sem verificar se a lista está vazia. Portanto, uma resposta sem registros pode gerar `IndexError`.
 
-### RN-02 — Horário obrigatório
+### 9.2. Listagem de medicamentos
 
-Todo medicamento cadastrado deverá possuir pelo menos um horário de uso informado.
+A função `listar_medicamentos()` consulta a tabela `medicamentos`, seleciona os campos disponíveis (`*`) e ordena os resultados por `created_at`, em ordem decrescente.
 
-Entradas vazias não deverão ser consideradas horários válidos.
+Retorna a lista de registros fornecida pelo Supabase.
 
-### RN-03 — Formato de horário
+### 9.3. Registro de tomada
 
-Os horários informados para um medicamento deverão utilizar um formato de hora válido no padrão `HH:MM`.
+A função `registrar_tomada(medicamento_id)`:
 
-Valores que não representem horários válidos deverão ser rejeitados.
+1. Remove espaços excedentes do ID.
+2. Rejeita um ID vazio.
+3. Verifica se o medicamento existe na tabela `medicamentos`.
+4. Insere o ID em `medicamento_id`, na tabela `registros_tomada`.
+5. Retorna o primeiro registro inserido.
 
-### RN-04 — Registro de tomada
+Caso o medicamento não exista, gera `ValueError`. Caso a resposta da inserção não contenha dados, gera `RuntimeError`.
 
-Uma tomada somente deverá ser registrada para um medicamento existente.
+### 9.4. Remoção de medicamento
 
-Tentativas de registrar uma tomada para um medicamento inexistente deverão resultar em erro controlado ou indicação de que o medicamento não foi encontrado.
+A função `remover_medicamento(medicamento_id)` solicita a exclusão do registro na tabela `medicamentos`, filtrando pelo campo `id`.
 
-### RN-05 — Remoção de medicamento
+Retorna os dados fornecidos pela resposta do Supabase. A validação prévia da existência do medicamento é realizada pela interface CLI.
 
-Somente medicamentos existentes poderão ser removidos.
+A função de persistência não realiza validação interna de ID vazio ou de existência do medicamento. Essas verificações são responsabilidade da CLI. Se nenhum registro corresponder ao ID informado, a resposta do Supabase poderá retornar uma lista vazia.
 
-Quando o identificador informado não corresponder a um medicamento cadastrado, o sistema deverá indicar que nenhum medicamento foi encontrado em vez de informar sucesso na operação.
+### 9.5. Consulta ao histórico
 
-### RN-06 — Consulta externa
+A função `listar_historico()` consulta a tabela `registros_tomada`, selecionando `id`, `tomado_em` e o nome relacionado do medicamento (`medicamentos(nome)`).
 
-A consulta à API openFDA deverá exigir um nome de medicamento não vazio.
+Os registros são ordenados por `tomado_em`, em ordem decrescente, e retornados conforme a resposta do Supabase.
 
-Consultas vazias ou compostas apenas por espaços deverão ser rejeitadas antes da requisição ao serviço externo.
+### 9.6. Consulta à API openFDA
 
-### RN-07 — Medicamento não encontrado na API
+A função `consultar_medicamento(nome)`, em `src/drug_api.py`, recebe o nome genérico do medicamento.
 
-Quando a API não retornar resultados para o medicamento consultado, o sistema deverá tratar a situação como medicamento não encontrado, sem causar encerramento inesperado da aplicação.
+A requisição utiliza o endpoint `https://api.fda.gov/drug/label.json`, com os parâmetros:
 
-### RN-08 — Caráter informativo
+- `search`: pesquisa pelo campo `openfda.generic_name`.
+- `limit`: limita a consulta a um resultado.
+- `timeout`: define o limite de espera da requisição em 10 segundos.
 
-As informações obtidas através da API openFDA possuem finalidade exclusivamente informativa e não deverão ser apresentadas como diagnóstico, prescrição ou recomendação de tratamento.
+Quando encontra um resultado, retorna um dicionário com os campos `nome_generico`, `nome_marca`, `fabricante`, `tipo_produto` e `aviso`.
 
-## 9. Contratos de Entrada e Saída
+Quando recebe HTTP 404 ou uma resposta sem resultados, retorna `None`. Outros erros HTTP podem ser propagados pela biblioteca Requests.
 
-### 9.1 Cadastro de medicamento
+### 9.7. Configuração do Supabase
 
-**Entrada:**
+A conexão utiliza as credenciais `SUPABASE_URL` e `SUPABASE_KEY`.
 
-* `nome`: texto contendo o nome do medicamento;
-* `horarios`: lista contendo um ou mais horários no formato `HH:MM`.
+O código procura primeiro as variáveis de ambiente e, quando não estão disponíveis, tenta obter os valores por meio de `st.secrets`. Se as credenciais não forem encontradas, gera `RuntimeError`.
 
-**Saída esperada:**
+Os detalhes físicos do banco remoto, como tipos de dados, chaves, restrições e políticas de acesso, não são definidos pelos contratos Python descritos nesta seção.
 
-* medicamento cadastrado com identificador persistente;
-* confirmação de sucesso ao usuário.
+## 10. Componentes
 
-**Erros esperados:**
+### 10.1. Interface CLI — `src/main.py`
 
-* nome vazio;
-* ausência de horários válidos;
-* horário em formato inválido;
-* falha de comunicação com a camada de persistência.
+Responsável por apresentar o menu de operações, receber as entradas do usuário e encaminhar as solicitações ao módulo de persistência.
 
----
+As opções disponíveis são cadastro, listagem, registro de tomada, remoção, consulta ao histórico e encerramento.
 
-### 9.2 Listagem de medicamentos
+Nas operações de registro de tomada e remoção, a CLI apresenta os medicamentos cadastrados e verifica o ID informado antes de executar a operação.
 
-**Entrada:**
+### 10.2. Persistência — `src/database.py`
 
-* não requer dados adicionais do usuário.
+Responsável pela comunicação com o Supabase e pelas operações sobre as tabelas `medicamentos` e `registros_tomada`.
 
-**Saída esperada:**
+O módulo implementa cadastro, listagem, remoção, registro de tomada, consulta ao histórico e obtenção das credenciais necessárias à conexão.
 
-Uma coleção de medicamentos cadastrados contendo, no mínimo:
+### 10.3. Integração openFDA — `src/drug_api.py`
 
-* identificador;
-* nome;
-* horários associados.
+Responsável por consultar a API pública openFDA, tratar respostas sem resultados e organizar os campos relevantes da primeira ocorrência retornada.
 
-Quando não existirem medicamentos cadastrados, o sistema deverá informar que nenhum medicamento foi encontrado.
+A requisição utiliza tempo limite de 10 segundos. Erros HTTP diferentes de 404 e outras falhas da biblioteca Requests podem ser propagados para a camada chamadora.
 
----
+### 10.4. Interface Web — `streamlit_app.py`
 
-### 9.3 Registro de tomada
+Responsável pela interface de consulta informativa de medicamentos.
 
-**Entrada:**
+A aplicação valida a entrada antes da consulta, apresenta os dados retornados pela openFDA, informa quando não há resultados e exibe uma mensagem genérica quando ocorre uma exceção.
 
-* identificador de um medicamento existente.
+### 10.5. Testes automatizados — `tests/`
 
-**Saída esperada:**
+O diretório contém testes para:
 
-* criação de um registro de tomada associado ao medicamento;
-* data e hora do registro deverão ser mantidas pela camada de persistência;
-* confirmação da operação ao usuário.
+- Comportamentos do menu CLI.
+- Integração entre CLI e operações de persistência.
+- Validações de medicamentos inexistentes.
+- Operações do módulo de banco de dados.
+- Integração simulada com a API openFDA.
 
-**Erros esperados:**
+As dependências externas são simuladas nos testes. Não há testes automatizados específicos para a interface Streamlit no conjunto atual.
 
-* identificador inexistente ou inválido;
-* falha na persistência do registro.
+### 10.6. Componentes legados
 
----
+A implementação atual utiliza o Supabase como persistência da CLI. Componentes locais legados removidos durante a evolução do projeto não fazem parte da arquitetura descrita nesta especificação.
 
-### 9.4 Remoção de medicamento
+## 11. Fluxos
 
-**Entrada:**
+### 11.1. Fluxo de cadastro de medicamento
 
-* identificador do medicamento a ser removido.
+1. O usuário seleciona a opção de cadastro na CLI.
+2. Informa o nome do medicamento e os horários separados por vírgula.
+3. A CLI encaminha os dados para `cadastrar_medicamento()`.
+4. O módulo de persistência valida os dados e solicita a inserção ao Supabase.
+5. A CLI apresenta uma mensagem de sucesso ou de erro.
 
-**Saída esperada:**
+### 11.2. Fluxo de listagem
 
-* confirmação da remoção quando o medicamento existir.
+1. O usuário seleciona a opção de listagem.
+2. A CLI chama `listar_medicamentos()`.
+3. O módulo consulta a tabela `medicamentos`.
+4. A CLI apresenta os medicamentos e seus horários ou informa que não existem registros.
 
-**Erros esperados:**
+### 11.3. Fluxo de registro de tomada
 
-* identificador inexistente ou inválido;
-* falha de comunicação com a camada de persistência.
+1. O usuário seleciona a opção de registrar tomada.
+2. A CLI consulta os medicamentos cadastrados.
+3. O usuário informa o ID do medicamento.
+4. A CLI verifica se o ID está entre os medicamentos listados.
+5. O módulo de persistência verifica novamente a existência do medicamento.
+6. Se o medicamento existir, o sistema solicita a inserção do registro na tabela `registros_tomada`.
 
----
+### 11.4. Fluxo de remoção
 
-### 9.5 Consulta do histórico
+1. O usuário seleciona a opção de remoção.
+2. A CLI consulta os medicamentos cadastrados.
+3. O usuário informa o ID do medicamento.
+4. A CLI verifica se o ID está entre os medicamentos listados.
+5. O módulo solicita a exclusão do registro no Supabase.
+6. A CLI apresenta a confirmação somente quando a resposta contém registros removidos.
 
-**Entrada:**
+### 11.5. Fluxo de consulta ao histórico
 
-* não requer dados adicionais do usuário.
+1. O usuário seleciona a opção de histórico.
+2. A CLI chama `listar_historico()`.
+3. O módulo consulta os registros de tomada e o nome relacionado do medicamento.
+4. A CLI apresenta os dados retornados ou informa que não existem registros.
 
-**Saída esperada:**
+### 11.6. Fluxo de consulta pela interface Web
 
-Uma coleção de registros de tomada contendo informações que permitam identificar:
+1. O usuário informa o nome genérico do medicamento no campo da aplicação Streamlit.
+2. Seleciona o botão de consulta.
+3. A interface verifica se o campo está preenchido.
+4. A função `consultar_medicamento()` realiza a requisição à API openFDA.
+5. A interface apresenta as informações encontradas, informa a ausência de resultados ou exibe uma mensagem genérica em caso de erro.
 
-* o medicamento relacionado;
-* o momento em que a tomada foi registrada.
+## 12. Fora do escopo
 
-Quando não houver registros, o sistema deverá informar que o histórico está vazio.
+As funcionalidades abaixo não fazem parte da implementação atual do CheckorKaput:
 
----
+- Diagnóstico de doenças ou condições de saúde.
+- Prescrição, recomendação ou alteração de tratamentos e dosagens.
+- Garantia de disponibilidade ou entrega de notificações nos horários cadastrados.
+- Integração entre a consulta informativa da openFDA e o cadastro de medicamentos no Supabase.
+- Consulta a múltiplos resultados da openFDA, pois a implementação limita a requisição a um resultado.
+- Funcionamento da persistência da CLI sem conexão com o Supabase.
+- Definição ou administração automática do esquema físico do banco remoto.
+- Testes automatizados específicos da interface Streamlit.
+- Funcionalidades que não estejam presentes no código atual ou comprovadas pelos testes disponíveis.
 
-### 9.6 Consulta de medicamento na openFDA
-
-**Entrada:**
-
-* nome genérico do medicamento em formato textual.
-
-**Saída esperada:**
-
-Quando encontrado, um objeto contendo:
-
-* `nome_generico`;
-* `nome_marca`;
-* `fabricante`;
-* `tipo_produto`;
-* `aviso`.
-
-Campos não disponíveis deverão utilizar a indicação `Não informado`.
-
-Quando nenhum resultado for encontrado, a operação deverá retornar uma indicação de ausência de resultado.
-
-**Erros esperados:**
-
-* nome vazio;
-* indisponibilidade da API;
-* erro HTTP;
-* resposta inválida do serviço externo.
-
-## 10. Componentes do Sistema
-
-### 10.1 Interface CLI — `src/main.py`
-
-Responsável pela interação com o usuário através do terminal.
-
-Suas responsabilidades incluem:
-
-* apresentar o menu principal;
-* coletar dados de entrada;
-* solicitar operações à camada de banco de dados;
-* apresentar resultados e mensagens de erro ao usuário.
-
-A interface não deverá ser responsável pela implementação direta da persistência.
-
-### 10.2 Persistência — `src/database.py`
-
-Responsável pela comunicação com o Supabase.
-
-Suas responsabilidades incluem:
-
-* criação do cliente de conexão;
-* cadastro de medicamentos;
-* listagem de medicamentos;
-* remoção de medicamentos;
-* registro de tomadas;
-* consulta ao histórico de tomadas.
-
-As credenciais utilizadas para conexão não deverão ser armazenadas diretamente no código-fonte.
-
-### 10.3 Integração openFDA — `src/drug_api.py`
-
-Responsável pela comunicação com a API pública openFDA.
-
-Suas responsabilidades incluem:
-
-* validar a entrada básica da consulta;
-* realizar a requisição HTTP;
-* tratar resultados ausentes;
-* extrair os campos utilizados pela aplicação;
-* fornecer uma estrutura de dados simplificada para a camada de interface.
-
-### 10.4 Interface Web — `streamlit_app.py`
-
-Responsável pela interação web para consulta informativa de medicamentos.
-
-Suas responsabilidades incluem:
-
-* receber o nome do medicamento;
-* solicitar a consulta a `src/drug_api.py`;
-* exibir os dados retornados;
-* informar quando nenhum medicamento for encontrado;
-* tratar falhas de consulta sem encerrar inesperadamente a aplicação;
-* apresentar aviso de caráter exclusivamente informativo.
-
-### 10.5 Testes — `tests/`
-
-Responsável pela validação automatizada dos comportamentos do sistema.
-
-Durante esta iteração, a estrutura será reorganizada para distinguir testes unitários e testes de integração.
-
-Os testes deverão possuir relação rastreável com os requisitos e regras definidos nesta especificação.
-
-### 10.6 Remoção dos componentes legados
-
-A issue #44 remove os módulos de armazenamento local e manipulação em memória,
-que não eram utilizados pela CLI nem pela interface web. As regras de cadastro,
-registro de tomada e remoção são validadas nos testes da persistência atual e da
-integração CLI/persistência, com o cliente externo simulado conforme RNF-06.
-
-## 11. Fluxos Principais
-
-### 11.1 Cadastro de medicamento
-
-1. O usuário seleciona a opção de cadastro.
-2. A interface solicita o nome do medicamento.
-3. A interface solicita os horários.
-4. As entradas são validadas.
-5. A camada de persistência registra o medicamento.
-6. O sistema informa o resultado da operação.
-
-### 11.2 Registro de tomada
-
-1. O usuário solicita a listagem de medicamentos.
-2. O sistema apresenta os medicamentos e seus identificadores.
-3. O usuário seleciona um medicamento.
-4. O sistema verifica a existência do medicamento.
-5. Um registro de tomada é criado.
-6. O sistema confirma a operação.
-
-### 11.3 Consulta informativa
-
-1. O usuário informa o nome genérico de um medicamento na interface web.
-2. A entrada é validada.
-3. O componente de integração realiza uma consulta à openFDA.
-4. O resultado é tratado e simplificado.
-5. A interface apresenta as informações disponíveis.
-6. Caso nenhum resultado seja encontrado, o usuário é informado.
-
-## 12. Fora de Escopo
-
-Não fazem parte dos objetivos desta iteração:
-
-* diagnóstico médico;
-* recomendação de medicamentos;
-* definição automática de doses;
-* alteração de tratamentos;
-* autenticação de usuários;
-* notificações automáticas de horário;
-* substituição de orientação médica ou farmacêutica;
-* desenvolvimento de novas funcionalidades que não sejam necessárias para atender aos requisitos definidos nesta especificação.
-
-Essas funcionalidades poderão ser consideradas em futuras evoluções do projeto mediante nova especificação.
+O CheckorKaput é uma ferramenta acadêmica de organização e consulta informativa. Não substitui orientação de profissionais de saúde.
 
 ## 13. Rastreabilidade
 
-A tabela abaixo relaciona os requisitos funcionais às regras de negócio e às validações previstas para esta iteração.
+A tabela relaciona os requisitos funcionais aos principais módulos e testes existentes no repositório.
 
-| Requisito                                    | Regras relacionadas | Validação prevista                                                          |
-| -------------------------------------------- | ------------------- | --------------------------------------------------------------------------- |
-| RF-01 — Cadastrar medicamento                | RN-01, RN-02, RN-03 | Cadastro válido, nome vazio, ausência de horário e horário inválido         |
-| RF-02 — Listar medicamentos                  | —                   | Listagem com registros e listagem vazia                                     |
-| RF-03 — Registrar tomada                     | RN-04               | Registro para medicamento existente e tentativa com medicamento inexistente |
-| RF-04 — Remover medicamento                  | RN-05               | Remoção de medicamento existente e tentativa com identificador inexistente  |
-| RF-05 — Consultar histórico                  | —                   | Consulta com registros e histórico vazio                                    |
-| RF-06 — Consultar informações de medicamento | RN-06, RN-07        | Consulta válida, entrada vazia e medicamento não encontrado                 |
-| RF-07 — Exibir informações obtidas da API    | RN-07, RN-08        | Tratamento dos campos retornados, campos ausentes e ausência de resultado   |
+| Requisito | Implementação | Evidência de teste |
+|---|---|---|
+| RF-01 — Cadastrar medicamentos | `src/main.py` e `src/database.py` | `test_cli_database_integration.py` e `test_database.py` |
+| RF-02 — Listar medicamentos | `src/main.py` e `src/database.py` | `test_main.py` e `test_database.py` |
+| RF-03 — Registrar tomada | `src/main.py` e `src/database.py` | `test_cli_database_integration.py`, `test_cli_missing_medications.py` e `test_database_missing_medications.py` |
+| RF-04 — Remover medicamento | `src/main.py` e `src/database.py` | `test_cli_database_integration.py` e `test_cli_missing_medications.py` |
+| RF-05 — Consultar histórico | `src/main.py` e `src/database.py` | `test_database.py` |
+| RF-06 — Consultar informações de medicamentos | `src/drug_api.py` e `streamlit_app.py` | `test_drug_api_integration.py` |
+| RF-07 — Apresentar informações da consulta | `src/drug_api.py` e `streamlit_app.py` | Tratamento dos campos verificado em `test_drug_api_integration.py`; apresentação visual sem teste automatizado específico. |
+
+### 13.1. Cobertura dos testes
+
+Na validação realizada durante esta documentação, a suíte apresentou **36 testes aprovados**.
+
+Os testes verificam operações da CLI, regras de persistência e integração simulada com a openFDA.
+
+A suíte atual não comprova:
+
+- A disponibilidade real do Supabase ou da API openFDA.
+- A estrutura física completa do banco remoto.
+- O comportamento visual e a interação da interface Streamlit.
+- Todos os cenários de falha possíveis das integrações externas.
+
+A aprovação dos testes demonstra os comportamentos cobertos pelos testes automatizados, não a ausência de defeitos em todo o sistema.
 
 ## 14. Refinamentos da Especificação
 
@@ -535,3 +463,18 @@ ao teste de persistência. Não há alteração dos contratos públicos atuais.
 O documento duplicado de experiência e governança foi removido. Evidências
 históricas da Entrega 2 permanecem como registro da versão então validada e
 não representam a composição da suíte após esta limpeza.
+
+### 14.9. Validação da versão atual
+
+Durante a atualização desta especificação, foram executadas as seguintes verificações no ambiente Python 3.12:
+
+| Verificação | Comando | Resultado |
+|---|---|---|
+| Testes automatizados | `python -m pytest -q` | 36 testes aprovados |
+| Análise estática | `python -m ruff check .` | Todas as verificações aprovadas |
+
+Esses resultados representam a validação realizada no ambiente local durante a atualização da documentação.
+
+A validação não incluiu a execução de uma imagem Docker neste ambiente, pois o Docker não estava disponível. Também não representa uma verificação de disponibilidade dos serviços externos Supabase e openFDA.
+
+Os resultados devem ser reavaliados caso ocorram alterações no código ou nos testes após este registro.
