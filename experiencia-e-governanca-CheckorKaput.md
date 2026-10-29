@@ -88,6 +88,37 @@ O trabalho colaborativo exige divisão explícita das tarefas, comunicação sob
 
 ## 6. Uso de IA e responsabilidade humana
 
+### Eficácia do ChatGPT no fluxo SDD
+
+O ChatGPT foi utilizado como ferramenta auxiliar durante o desenvolvimento, apoiando a interpretação de requisitos, a investigação de problemas técnicos e a organização da documentação. No fluxo SDD, esse apoio é mais útil quando parte de requisitos e critérios explícitos e produz sugestões que podem ser verificadas pela equipe.
+
+**Exemplos de apoio durante o trabalho:**
+
+- **Testes e qualidade:** auxílio na análise de mensagens de erro do pytest e do Ruff, na identificação de possíveis causas e na elaboração de correções e testes adicionais.
+- **Desenvolvimento:** apoio à compreensão de funções, módulos, integrações e comportamentos esperados, com necessidade de conferir as sugestões no código real.
+- **Documentação e governança:** apoio à organização das evidências, à estruturação da retrospectiva e à explicitação dos critérios de revisão antes da integração.
+
+Esses exemplos descrevem formas de apoio utilizadas no trabalho; não significam que toda sugestão tenha sido incorporada ou que a IA tenha executado e validado todas as mudanças.
+
+### Ganhos observados
+
+O principal ganho qualitativo foi contar com apoio para organizar problemas em etapas menores, investigar erros e estruturar explicações e documentação. Não foi realizada uma medição controlada do tempo antes e depois do uso da IA. Portanto, não é possível afirmar uma porcentagem de aumento de produtividade ou uma redução numérica do tempo de desenvolvimento.
+
+### Dificuldades encontradas
+
+Entre os desafios técnicos documentados no projeto estão a dependência de serviços externos, a configuração de credenciais, a necessidade de manter testes confiáveis e a conferência dos resultados da integração contínua. Também é necessário distinguir uma sugestão plausível de uma solução realmente compatível com o código, o ambiente e os requisitos do projeto.
+
+O uso do ChatGPT não elimina essas dificuldades: as respostas podem exigir ajustes, e os resultados precisam ser verificados por meio de execução, testes e revisão humana.
+
+### Lições aprendidas
+
+- Começar pelos requisitos e critérios de aceite ajuda a manter o trabalho alinhado ao objetivo da Issue.
+- Dividir problemas em etapas menores facilita a investigação e a validação das soluções.
+- Testes locais, Ruff e CI fornecem evidências diferentes e complementares.
+- A documentação deve refletir o estado real do projeto, incluindo limitações e evidências ainda pendentes.
+- A IA pode auxiliar a investigação e a elaboração de propostas, mas a responsabilidade pelas decisões e pela aprovação continua sendo da equipe.
+- Revisão por pares e evidências verificáveis são necessárias antes de declarar uma entrega concluída.
+
 O projeto identifica o ChatGPT como ferramenta auxiliar no `AGENTS.md`. A IA pode ajudar a interpretar requisitos, sugerir soluções, produzir rascunhos de documentação e testes e apontar inconsistências.
 
 A responsabilidade final permanece com os integrantes da equipe. Antes de integrar qualquer conteúdo gerado ou sugerido pela IA, uma pessoa deve:
@@ -103,6 +134,8 @@ A utilização de IA não deve ser descrita como revisão humana, execução de 
 
 ## 7. Evidências verificáveis
 
+- **Experiência e governança:**
+- [Retrospectiva final da equipe](experiencia-e-governanca-CheckorKaput.md)
 - [Repositório CheckorKaput](https://github.com/gianluca-berria/CheckorKaput)
 - [Issue #1 — integração com API pública](https://github.com/gianluca-berria/CheckorKaput/issues/1)
 - [Issue #2 — item relacionado à conclusão da Issue #1](https://github.com/gianluca-berria/CheckorKaput/issues/2)
