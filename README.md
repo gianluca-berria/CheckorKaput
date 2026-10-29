@@ -6,6 +6,7 @@ Aplicação em Python para auxiliar no cadastro e acompanhamento de medicamentos
 
 - **Aplicação web:** https://checkorkaput-fw7oxgsm84l32czslsqjtk.streamlit.app/
 - **Especificação técnica:** [docs/SPEC.md](docs/SPEC.md)
+- **Experiência e governança:** [Retrospectiva final da equipe](experiencia-e-governanca-CheckorKaput.md)
 - **Execuções da integração contínua:** [GitHub Actions](https://github.com/gianluca-berria/CheckorKaput/actions)
 
 > **Aviso:** as informações da consulta são apenas informativas. O CheckorKaput não fornece diagnóstico, prescrição ou recomendação de tratamento e não substitui a orientação de um profissional de saúde.
