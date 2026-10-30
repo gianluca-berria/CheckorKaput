@@ -68,6 +68,8 @@ Os dois fluxos têm finalidades distintas: a CLI gerencia os registros pessoais 
 - Supabase (persistência da CLI)
 - Requests (requisições HTTP à openFDA)
 - pytest (testes automatizados)
+- pytest-cov (relatórios de cobertura de testes)
+- pytest-mock (suporte a mocks nos testes)
 - Ruff (análise estática/lint)
 - Docker (ambiente reproduzível)
 - GitHub Actions (integração contínua)
@@ -262,6 +264,27 @@ Por padrão, o Streamlit disponibiliza a aplicação em http://localhost:8501. I
 
 Execute os comandos na raiz do projeto, após instalar as dependências.
 
+### Cobertura de testes
+
+Para executar os testes e gerar o relatório de cobertura:
+
+```bash
+python -m pytest --cov --cov-report=term-missing -q
+```
+
+**Última execução local:**
+- Testes aprovados: 41
+- Cobertura total: 81%
+
+| Módulo | Cobertura |
+|---|---:|
+| `src/database.py` | 75% |
+| `src/drug_api.py` | 83% |
+| `src/main.py` | 80% |
+| `streamlit_app.py` | 100% |
+
+Os resultados representam uma execução local e podem variar conforme a evolução do código e dos testes. A cobertura não é atualmente uma etapa obrigatória do workflow de integração contínua.
+
 ### Suíte de testes
 
 ```bash
@@ -305,7 +328,7 @@ docker run --rm -it --env-file .env checkorkaput
 O comando abaixo substitui o comando padrão da imagem e publica a porta `8501` no computador local:
 
 ```bash
-docker run --rm -p 8501:8501 --env-file .env checkorkaput streamlit run streamlit_app.py --server.address=0.0.0.0
+docker run --rm -p 8501:8501 checkorkaput streamlit run streamlit_app.py --server.address=0.0.0.0
 ```
 
 Depois, abra http://localhost:8501. Se não for necessária conexão ao Supabase para o fluxo web, as variáveis podem ser omitidas; a consulta à openFDA continua dependendo de acesso à internet.
@@ -314,6 +337,12 @@ Depois, abra http://localhost:8501. Se não for necessária conexão ao Supabase
 
 ```bash
 docker run --rm checkorkaput python -m pytest -q
+```
+
+Para executar os testes com relatório de cobertura:
+
+```bash
+docker run --rm checkorkaput python -m pytest --cov --cov-report=term-missing -q
 ```
 
 ### Executar o Ruff no Docker
