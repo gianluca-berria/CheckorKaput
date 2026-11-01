@@ -65,17 +65,12 @@ A especificação não deverá ser modificada apenas para justificar posteriorme
 
 Quando testes, revisão de código ou decisões da equipe demonstrarem necessidade de mudança nos requisitos, o refinamento deverá ser realizado explicitamente e documentado.
 
-## 7. Componentes legados
+## 7. Persistência e componentes removidos
 
-Os componentes:
-
-- `src/reminder.py`;
-- `src/storage.py`;
-- `data/meds.json`;
-
-são considerados parte de uma implementação anterior do projeto.
-
-Novas funcionalidades não deverão depender desses componentes sem decisão arquitetural explícita.
+A persistência da CLI utiliza `src/database.py` e Supabase.
+Os componentes legados de armazenamento local foram removidos na issue #44.
+Novas funcionalidades não deverão reintroduzir persistência local sem decisão
+arquitetural explícita.
 
 ## 8. Restrições
 

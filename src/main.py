@@ -1,10 +1,10 @@
 
 from src.database import (
     cadastrar_medicamento,
-    listar_medicamentos,
-    remover_medicamento,
-    registrar_tomada,
     listar_historico,
+    listar_medicamentos,
+    registrar_tomada,
+    remover_medicamento,
 )
 
 
@@ -31,8 +31,8 @@ def main():
 
             try:
                 cadastrar_medicamento(nome, horarios)
-                print("✔ Medicamento adicionado com sucesso!")
-            except Exception as erro:
+                print("âœ” Medicamento adicionado com sucesso!")
+            except Exception as erro:  # noqa: BLE001
                 print(f"Erro ao cadastrar: {erro}")
 
             
@@ -49,7 +49,7 @@ def main():
                     for med in medicamentos:
                         print(f"- {med['nome']} | Horários: {med['horarios']}")
 
-            except Exception as erro:
+            except Exception as erro:  # noqa: BLE001
                 print(f"Erro ao listar: {erro}")
 
         # -------------------------
@@ -86,11 +86,11 @@ def main():
                     else:
                         print("Medicamento não encontrado.")
 
-            except Exception as erro:
+            except Exception as erro:  # noqa: BLE001
                 operacao = "registrar tomada" if opcao == "3" else "remover"
                 print(f"Erro ao {operacao}: {erro}")
 
-        # 5 - HISTÓRICO
+        # 5 - HISTÃ“RICO
         # -------------------------
         elif opcao == "5":
             try:
@@ -104,7 +104,7 @@ def main():
                     for item in historico:
                         print(item)
 
-            except Exception as erro:
+            except Exception as erro:  # noqa: BLE001
                 print(f"Erro ao consultar histórico: {erro}")
 
         # -------------------------

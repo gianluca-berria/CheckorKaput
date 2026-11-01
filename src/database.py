@@ -3,7 +3,6 @@ import re
 
 from supabase import Client, create_client
 
-
 PADRAO_HORARIO = re.compile(r"(?:[01]\d|2[0-3]):[0-5]\d")
 
 
@@ -17,7 +16,7 @@ def _get_secret(name: str) -> str:
         import streamlit as st
 
         value = st.secrets.get(name)
-    except Exception:
+    except Exception:  # noqa: BLE001
         value = None
 
     if not value:
@@ -118,3 +117,4 @@ def listar_historico() -> list[dict]:
     )
 
     return resposta.data
+

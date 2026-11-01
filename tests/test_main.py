@@ -1,20 +1,25 @@
+
 from unittest.mock import patch
 
 from src import main
 
 
 def test_menu_saida():
-    with patch("builtins.input", return_value="6"):
-        with patch("builtins.print"):
-            main.main()
+    with (
+        patch("builtins.input", return_value="6"),
+        patch("builtins.print"),
+    ):
+        main.main()
 
 
 def test_menu_opcao_invalida():
     entradas = iter(["99", "6"])
 
-    with patch("builtins.input", side_effect=entradas):
-        with patch("builtins.print") as mock_print:
-            main.main()
+    with (
+        patch("builtins.input", side_effect=entradas),
+        patch("builtins.print") as mock_print,
+    ):
+        main.main()
 
     mensagens = [
         chamada.args[0]
@@ -39,16 +44,15 @@ def test_menu_listar_medicamentos():
         }
     ]
 
-    with patch(
-        "src.main.listar_medicamentos",
-        return_value=medicamentos,
+    with (
+        patch(
+            "src.main.listar_medicamentos",
+            return_value=medicamentos,
+        ),
+        patch("builtins.input", side_effect=entradas),
+        patch("builtins.print") as mock_print,
     ):
-        with patch(
-            "builtins.input",
-            side_effect=entradas,
-        ):
-            with patch("builtins.print") as mock_print:
-                main.main()
+        main.main()
 
     mensagens = [
         " ".join(str(argumento) for argumento in chamada.args)
@@ -64,16 +68,12 @@ def test_menu_listar_medicamentos():
 def test_menu_listar_sem_medicamentos():
     entradas = iter(["2", "6"])
 
-    with patch(
-        "src.main.listar_medicamentos",
-        return_value=[],
+    with (
+        patch("src.main.listar_medicamentos", return_value=[]),
+        patch("builtins.input", side_effect=entradas),
+        patch("builtins.print") as mock_print,
     ):
-        with patch(
-            "builtins.input",
-            side_effect=entradas,
-        ):
-            with patch("builtins.print") as mock_print:
-                main.main()
+        main.main()
 
     mensagens = [
         " ".join(str(argumento) for argumento in chamada.args)

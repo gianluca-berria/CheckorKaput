@@ -2,8 +2,7 @@ import streamlit as st
 
 from src.drug_api import consultar_medicamento
 
-
-st.set_page_config(page_title="CheckorKaput", page_icon="💊")
+st.set_page_config(page_title="CheckorKaput", page_icon="ðŸ’Š")
 
 st.title("CheckorKaput")
 st.write("Aplicação para consulta informativa de medicamentos usando API pública.")
@@ -35,5 +34,6 @@ if st.button("Consultar medicamento"):
                 st.write(f"**Tipo de produto:** {resultado['tipo_produto']}")
                 st.write(f"**Aviso:** {resultado['aviso']}")
 
-        except Exception:
+        except Exception:  # noqa: BLE001
             st.error("Erro ao consultar a API pública.")
+

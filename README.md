@@ -6,6 +6,7 @@ Aplicação em Python para auxiliar no cadastro e acompanhamento de medicamentos
 
 - **Aplicação web:** https://checkorkaput-fw7oxgsm84l32czslsqjtk.streamlit.app/
 - **Especificação técnica:** [docs/SPEC.md](docs/SPEC.md)
+- **Experiência e governança:** [Retrospectiva final da equipe](experiencia-e-governanca-CheckorKaput.md)
 - **Execuções da integração contínua:** [GitHub Actions](https://github.com/gianluca-berria/CheckorKaput/actions)
 
 > **Aviso:** as informações da consulta são apenas informativas. O CheckorKaput não fornece diagnóstico, prescrição ou recomendação de tratamento e não substitui a orientação de um profissional de saúde.
@@ -67,6 +68,8 @@ Os dois fluxos têm finalidades distintas: a CLI gerencia os registros pessoais 
 - Supabase (persistência da CLI)
 - Requests (requisições HTTP à openFDA)
 - pytest (testes automatizados)
+- pytest-cov (relatórios de cobertura de testes)
+- pytest-mock (suporte a mocks nos testes)
 - Ruff (análise estática/lint)
 - Docker (ambiente reproduzível)
 - GitHub Actions (integração contínua)
@@ -84,11 +87,8 @@ Para executar localmente, instale Git e Python 3.12. Para os comandos em contêi
 | `streamlit_app.py` | Interface web de consulta informativa. |
 | `src/drug_api.py` | Requisição à API openFDA e normalização dos dados retornados. |
 | `tests/` | Testes unitários, casos de borda e testes de integração. |
-| `src/reminder.py` | Implementação legada de manipulação de medicamentos em memória. |
-| `src/storage.py` | Implementação legada de persistência em JSON. |
-| `data/meds.json` | Arquivo de dados legado, mantido no repositório. |
 
-Os módulos `src/reminder.py` e `src/storage.py`, assim como `data/meds.json`, pertencem à implementação anterior. A persistência principal utilizada pela CLI atual é o Supabase.
+A persistência da CLI utiliza o Supabase. Os componentes anteriores de armazenamento local foram removidos na issue #44.
 
 ### Diagrama do fluxo da aplicação
 
@@ -264,6 +264,27 @@ Por padrão, o Streamlit disponibiliza a aplicação em http://localhost:8501. I
 
 Execute os comandos na raiz do projeto, após instalar as dependências.
 
+### Cobertura de testes
+
+Para executar os testes e gerar o relatório de cobertura:
+
+```bash
+python -m pytest --cov --cov-report=term-missing -q
+```
+
+**Última execução local:**
+- Testes aprovados: 41
+- Cobertura total: 81%
+
+| Módulo | Cobertura |
+|---|---:|
+| `src/database.py` | 75% |
+| `src/drug_api.py` | 83% |
+| `src/main.py` | 80% |
+| `streamlit_app.py` | 100% |
+
+Os resultados representam uma execução local e podem variar conforme a evolução do código e dos testes. A cobertura não é atualmente uma etapa obrigatória do workflow de integração contínua.
+
 ### Suíte de testes
 
 ```bash
@@ -307,7 +328,7 @@ docker run --rm -it --env-file .env checkorkaput
 O comando abaixo substitui o comando padrão da imagem e publica a porta `8501` no computador local:
 
 ```bash
-docker run --rm -p 8501:8501 --env-file .env checkorkaput streamlit run streamlit_app.py --server.address=0.0.0.0
+docker run --rm -p 8501:8501 checkorkaput streamlit run streamlit_app.py --server.address=0.0.0.0
 ```
 
 Depois, abra http://localhost:8501. Se não for necessária conexão ao Supabase para o fluxo web, as variáveis podem ser omitidas; a consulta à openFDA continua dependendo de acesso à internet.
@@ -316,6 +337,12 @@ Depois, abra http://localhost:8501. Se não for necessária conexão ao Supabase
 
 ```bash
 docker run --rm checkorkaput python -m pytest -q
+```
+
+Para executar os testes com relatório de cobertura:
+
+```bash
+docker run --rm checkorkaput python -m pytest --cov --cov-report=term-missing -q
 ```
 
 ### Executar o Ruff no Docker
@@ -385,7 +412,6 @@ Consulte também a [especificação técnica](docs/SPEC.md) para requisitos, reg
 - A interface Streamlit depende de acesso à internet e da disponibilidade da API openFDA; indisponibilidade ou mudanças na API podem impedir consultas.
 - A consulta à openFDA é informativa e não deve ser usada para decidir ou modificar tratamentos médicos.
 - A aplicação não substitui alarmes de um sistema operacional nem garante que uma pessoa receberá uma notificação no horário cadastrado; a funcionalidade atual da CLI registra horários e tomadas.
-- Os componentes `src/reminder.py`, `src/storage.py` e `data/meds.json` são legados e não representam o caminho principal de persistência atual.
 - A CLI e a consulta web são fluxos separados; a interface web não apresenta os medicamentos pessoais armazenados no Supabase.
 - O esquema e as políticas de acesso do Supabase precisam estar preparados no projeto remoto. As credenciais não são fornecidas no repositório.
 - A cobertura de testes não garante ausência de defeitos. Confira sempre o resultado de pytest, Ruff e CI do commit que será entregue.

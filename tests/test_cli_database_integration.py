@@ -29,13 +29,11 @@ def test_cli_cadastra_medicamento_integrando_database():
     with patch(
         "src.database.get_client",
         return_value=cliente,
-    ):
-        with patch(
-            "builtins.input",
-            side_effect=entradas,
-        ):
-            with patch("builtins.print"):
-                main.main()
+    ), patch(
+        "builtins.input",
+        side_effect=entradas,
+    ), patch("builtins.print"):
+        main.main()
 
     cliente.table.assert_called_once_with("medicamentos")
     tabela.insert.assert_called_once_with(
